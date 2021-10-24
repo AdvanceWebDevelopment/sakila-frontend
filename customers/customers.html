@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <meta name="Description" content="Enter your description here" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css"
+    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <title>Customers</title>
+  </head>
+
+  <body>
+    <div class="container mt-4">
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex">
+                <a
+                  name="addBtn"
+                  id="addBtn"
+                  class="btn btn-primary align-self-sm-start justify-content-end"
+                  href="../index.html"
+                  role="button"
+                >
+                  <i class="fas fa-home"></i>
+                  Home
+                </a>
+                <h3 class="card-title text-center flex-grow-1">Customers List</h3>
+                <a
+                  name="addBtn"
+                  id="addBtn"
+                  class="btn btn-primary align-self-sm-start justify-content-end"
+                  href="./customer-add.html"
+                  role="button"
+                >
+                  <i class="fas fa-plus"></i>
+                  Add
+                </a>
+              </div>
+
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Email</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="customerContainer"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.min.js"></script>
+
+    <script>
+      const apiUrl = "http://localhost:3030/api/customers";
+      $(function () {
+        $.ajax({
+          url: apiUrl,
+          type: "GET",
+        }).done(function (response) {
+          let html = "";
+          for (const item of response) {
+            html += `
+                    <tr id="${item.customer_id}">
+                        <td>${item.customer_id}</td>
+                        <td>${item.first_name}</td>
+                        <td>${item.last_name}</td>
+                        <td>${item.email}</td>
+                        <td> 
+                            <a name="${item.customer_id}" id="${
+              item.customer_id
+            }" class="btn btn-light edit" href="./customer-edit.html?id=${JSON.stringify(
+              item.customer_id
+            )}" role="button">
+                                <i class="fas fa-edit"></i>
+                            </a>
+
+                            <a name="${item.customer_id}" id="${
+              item.customer_id
+            }" class="btn btn-danger delete" href="#" role="button">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </td>
+                    </tr>
+                `;
+          }
+
+          $("#customerContainer").html(html);
+
+          $("table tr td a.delete").click(function (e) {
+            const id = $(e.currentTarget).attr("id");
+
+            $.ajax({
+              url: apiUrl + "/" + id,
+              type: "DELETE",
+            }).done(function (response) {
+              alert("Actor deleted successfully");
+              $("tr#" + id).remove();
+            });
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
