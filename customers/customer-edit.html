@@ -48,14 +48,45 @@
         const apiUrl = "http://localhost:3030/api/customers";
         const id = new URL(window.location.href).searchParams.get("id");
 
+        let token = localStorage.getItem("token");
+        const refreshToken = localStorage.getItem("refreshToken");
+
+        function refreshCurrentToken() {
+          const authUrl = "http://localhost:3030/api/auth";
+
+          return $.ajax({
+            url: authUrl + "/refresh",
+            type: "POST",
+            data: JSON.stringify({
+              refreshToken: refreshToken,
+            }),
+            dataType: "json",
+            contentType: "application/json",
+          }).done(function (response) {
+            console.log(`Refresh access token successfully`);
+
+            token = response.token;
+            localStorage.setItem("token", token);
+          });
+        }
+
         $.ajax({
           url: apiUrl + "/" + id,
           type: "GET",
+          headers: {
+            "x-auth-token": token,
+          },
           success: function (data) {
             console.log(data);
             $("#txtFirstName").val(data.first_name);
             $("#txtLastName").val(data.last_name);
           },
+        }).fail(function (data) {
+          console.log(`Fail to get data. Message: ${data.message}`);
+
+          refreshCurrentToken().done(function () {
+            location.reload();
+          });
         });
 
         $("#frmMain").on("submit", function (e) {
@@ -72,10 +103,21 @@
             }),
             dataType: "json",
             contentType: "application/json",
-          }).done(function (data) {
-            console.log(data);
-            alert("Customer updated successfully");
-          });
+            headers: {
+              "x-auth-token": token,
+            },
+          })
+            .done(function (data) {
+              console.log(data);
+              alert("Customer updated successfully");
+            })
+            .fail(function (xhr, status, error) {
+              console.log(`Fail to update customer. Message: ${data.message}`);
+
+              refreshCurrentToken().done(function () {
+                $("#frmMain").trigger("submit");
+              });
+            });
         });
       });
     </script>

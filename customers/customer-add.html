@@ -47,6 +47,31 @@
       $(function () {
         const apiUrl = "http://localhost:3030/api/customers";
 
+        let token = localStorage.getItem("token");
+        const refreshToken = localStorage.getItem("refreshToken");
+
+        function refreshCurrentToken() {
+          const authUrl = "http://localhost:3030/api/auth";
+
+          return $.ajax({
+            url: authUrl + "/refresh",
+            type: "POST",
+            data: JSON.stringify({
+              refreshToken: refreshToken,
+            }),
+            dataType: "json",
+            contentType: "application/json",
+            headers: {
+              "x-auth-token": token,
+            },
+          }).done(function (response) {
+            console.log(`Refresh access token successfully`);
+
+            token = response.token;
+            localStorage.setItem("token", token);
+          });
+        }
+
         $("#frmMain").on("submit", function (e) {
           e.preventDefault();
 
@@ -61,10 +86,19 @@
             }),
             dataType: "json",
             contentType: "application/json",
-          }).done(function (data) {
-            console.log(data);
-            alert("Customer added successfully");
-          });
+            headers: {
+              "x-auth-token": token,
+            },
+          })
+            .done(function (data) {
+              alert("Customer added successfully");
+            })
+            .fail(function (data) {
+              console.log(data);
+              refreshCurrentToken().done(function () {
+                $("#frmMain").submit();
+              });
+            });
         });
       });
     </script>

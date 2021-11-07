@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <meta name="Description" content="Enter your description here" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css"
+    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <title>Register</title>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand" href="../index.html">Sakila Frontend</a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="../index.html">Home <span class="sr-only">(current)</span></a>
+          </li>
+        </ul>
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="login.html">Login</a>
+          </li>
+
+          <li class="nav-item active">
+            <a class="nav-link" href="./auth/register.html">Register</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="card my-5">
+        <h3 class="card-header">User Information</h3>
+        <div class="card-body">
+          <form id="frmMain">
+            <div class="form-group">
+              <label for="txtUsername">User Name</label>
+              <input type="text" class="form-control" id="txtUsername" autofocus required />
+            </div>
+            <div class="form-group">
+              <label for="txtPassword">Password</label>
+              <input type="text" class="form-control" id="txtPassword" required />
+            </div>
+            <button type="submit" class="btn btn-primary">
+              <i class="fa fa-check" aria-hidden="true"></i>
+              Register
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.min.js"></script>
+
+    <script>
+      $(function () {
+        $("#frmMain").submit(function (e) {
+          e.preventDefault();
+
+          $.ajax({
+            type: "POST",
+            url: "http://localhost:3030/api/auth/register",
+            data: JSON.stringify({
+              username: $("#txtUsername").val(),
+              password: $("#txtPassword").val(),
+            }),
+            dataType: "json",
+            contentType: "application/json",
+          })
+            .done(function (data) {
+              alert("Register Success");
+
+              window.location.href = "./login.html";
+            })
+            .fail(function (data) {
+              alert(data.responseJSON.message);
+            });
+        });
+      });
+    </script>
+  </body>
+</html>

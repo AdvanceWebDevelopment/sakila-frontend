@@ -66,49 +66,91 @@
 
     <script>
       const actorUrl = "http://localhost:3030/api/actors";
+
+      let token = localStorage.getItem("token");
+      const refreshToken = localStorage.getItem("refreshToken");
+
+      function refreshCurrentToken() {
+        const authUrl = "http://localhost:3030/api/auth";
+
+        $.ajax({
+          url: authUrl + "/refresh",
+          type: "POST",
+          data: JSON.stringify({
+            refreshToken: refreshToken,
+          }),
+          dataType: "json",
+          contentType: "application/json",
+        }).done(function (response) {
+          console.log(`Refresh access token successfully`);
+
+          token = response.token;
+          localStorage.setItem("token", token);
+          location.reload();
+        });
+      }
+
       $(function () {
         $.ajax({
           url: actorUrl,
           type: "GET",
-        }).done(function (response) {
-          let html = "";
-          for (const actor of response) {
-            html += `
+          headers: {
+            "x-auth-token": token,
+          },
+        })
+          .done(function (response) {
+            let html = "";
+            for (const actor of response) {
+              html += `
                     <tr id="${actor.actor_id}">
                         <td>${actor.actor_id}</td>
                         <td>${actor.first_name}</td>
                         <td>${actor.last_name}</td>
                         <td> 
                             <a name="${actor.actor_id}" id="${
-              actor.actor_id
-            }" class="btn btn-light edit" href="./actor-edit.html?id=${JSON.stringify(actor.actor_id)}" role="button">
+                actor.actor_id
+              }" class="btn btn-light edit" href="./actor-edit.html?id=${JSON.stringify(actor.actor_id)}" role="button">
                                 <i class="fas fa-edit"></i>
                             </a>
 
                             <a name="${actor.actor_id}" id="${
-              actor.actor_id
-            }" class="btn btn-danger delete" href="#" role="button">
+                actor.actor_id
+              }" class="btn btn-danger delete" href="#" role="button">
                                 <i class="fas fa-trash-alt"></i>
                             </a>
                         </td>
                     </tr>
                 `;
-          }
+            }
 
-          $("#actorContainer").html(html);
+            $("#actorContainer").html(html);
 
-          $("table tr td a.delete").click(function (e) {
-            const id = $(e.currentTarget).attr("id");
+            $("table tr td a.delete").click(function (e) {
+              const id = $(e.currentTarget).attr("id");
 
-            $.ajax({
-              url: actorUrl + "/" + id,
-              type: "DELETE",
-            }).done(function (response) {
-              alert("Actor deleted successfully");
-              $("tr#" + id).remove();
+              $.ajax({
+                url: actorUrl + "/" + id,
+                type: "DELETE",
+                headers: {
+                  "x-auth-token": token,
+                },
+              })
+                .done(function (response) {
+                  alert("Actor deleted successfully");
+                  $("tr#" + id).remove();
+                })
+                .fail(function (response) {
+                  console.log(`Error: ${response.responseText}`);
+
+                  refreshCurrentToken();
+                });
             });
+          })
+          .fail(function (data) {
+            console.log(`Fail to get data. Message: ${data.message}`);
+
+            refreshCurrentToken();
           });
-        });
       });
     </script>
   </body>

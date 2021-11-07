@@ -9,26 +9,52 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css"
     />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
-    />
-    <link rel="stylesheet" href="assets/css/style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
     <title>Sakila API</title>
   </head>
   <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand" href="./index.html">Sakila Frontend</a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="./index.html">Home <span class="sr-only">(current)</span></a>
+          </li>
+        </ul>
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item loginGroup">
+            <a class="nav-link" href="./auth/login.html">Login</a>
+          </li>
+
+          <li class="nav-item loginGroup">
+            <a class="nav-link" href="./auth/register.html">Register</a>
+          </li>
+
+          <li class="nav-item logoutGroup">
+            <a class="nav-link" href="#">Logout</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
     <div class="container">
       <div class="row mt-5">
         <div class="col-sm-4 text-center">
-          <a
-            role="button"
-            class="btn btn-lg btn-block"
-            href="./actors/actors.html"
-          >
+          <a role="button" class="btn btn-lg btn-block" href="./actors/actors.html">
             <div class="card">
-              <i
-                class="fab fa-android fa-10x align-self-center pt-2 text-danger"
-              ></i>
+              <i class="fab fa-android fa-10x align-self-center pt-2 text-danger"></i>
               <div class="card-body">
                 <h4 class="card-title">Actors</h4>
               </div>
@@ -37,21 +63,9 @@
         </div>
 
         <div class="col-sm-4 text-center">
-          <a
-            class="btn btn-lg btn-block"
-            role="button"
-            href="./customers/customers.html"
-          >
+          <a class="btn btn-lg btn-block" role="button" href="./customers/customers.html">
             <div class="card">
-              <i
-                class="
-                  fas
-                  fa-address-book fa-10x
-                  align-self-center
-                  pt-2
-                  text-primary
-                "
-              ></i>
+              <i class="fas fa-address-book fa-10x align-self-center pt-2 text-primary"></i>
               <div class="card-body">
                 <h4 class="card-title">Customers</h4>
               </div>
@@ -61,8 +75,41 @@
       </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.min.js"></script>
+
+    <script>
+      $(document).ready(function () {
+        const token = localStorage.getItem("token");
+        const refreshToken = localStorage.getItem("refreshToken");
+
+        if (token && refreshToken) {
+          $(".loginGroup").hide();
+          $(".logoutGroup").show();
+        } else {
+          $(".loginGroup").show();
+          $(".logoutGroup").hide();
+        }
+
+        $(".logoutGroup").click(function () {
+          const authUrl = "http://localhost:3030/api/auth";
+          $.ajax({
+            url: authUrl + "/logout",
+            type: "POST",
+            data: JSON.stringify({
+              refreshToken: refreshToken,
+            }),
+            dataType: "json",
+            contentType: "application/json",
+          }).done(function (data) {
+            alert("Logout Successful");
+            localStorage.removeItem("token");
+            localStorage.removeItem("refreshToken");
+            window.location.href = "./index.html";
+          });
+        });
+      });
+    </script>
   </body>
 </html>
